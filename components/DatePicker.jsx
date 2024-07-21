@@ -1,9 +1,9 @@
 import { View } from "react-native";
 import DateTimePicker from "react-native-ui-datepicker";
 
-export default function DatePicker({date, onChange}) {
+export default function DatePicker({ date, onChange }) {
   return (
-    <View style={{}}>
+    <View>
       <DateTimePicker
         timePicker={true}
         minDate={Date.now()}

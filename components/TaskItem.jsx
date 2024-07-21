@@ -1,45 +1,52 @@
 import { StyleSheet, Text, View } from "react-native";
+import { Colors } from "../constants";
 
 export default function TaskItem({ task }) {
   return (
-    <View style={styles.container}>
+    <View style={styles.rootContainer}>
       <Text style={styles.title}>{task.title}</Text>
-      <View style={styles.duration}>
-        <Text>Created</Text>
-        <Text>{task.createdAt}</Text>
+      <View style={styles.itemContainer}>
+        <View style={styles.labelContainer}>
+          <Text style={styles.label}>Created</Text>
+          <Text style={styles.label}>Deadline</Text>
+          <Text style={styles.label}>Task</Text>
+        </View>
+        <View style={styles.valueContainer}>
+          <Text style={styles.text}>{task.createdAt}</Text>
+          <Text style={styles.text}>{task.deadline}</Text>
+          <Text style={styles.text}>{task.task}</Text>
+        </View>
       </View>
-      <View style={styles.duration}>
-        <Text>Deadline</Text>
-        <Text>{task.deadline}</Text>
-      </View>
-      <Text>{task.task}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 20,
-    backgroundColor: "#38bdf8",
-    padding: 20,
+  rootContainer: {
     rowGap: 10,
-    elevation: 10,
-    marginBottom: 10,
-    // borderColor: "#f6f6",
-    // borderWidth: 2,
-    // width:"90%",
-    // overflow: "hidden",
-    // borderColor: "#000",
-    // borderWidth: 1,
-    // marginHorizontal: 15,
+    padding: 20,
+    backgroundColor: Colors.cardBackground,
+  },
+  labelContainer: { gap: 10 },
+  valueContainer: { gap: 10 },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: Colors.textSecondary,
   },
   title: {
     fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: Colors.textPrimary,
   },
-  duration: {
+  text: {
+    fontSize: 16,
+    color: Colors.textTertiary,
+  },
+  itemContainer: {
+    columnGap: 25,
     flexDirection: "row",
-    columnGap: 15,
     alignItems: "center",
   },
-  description: {},
 });

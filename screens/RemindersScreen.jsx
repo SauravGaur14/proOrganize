@@ -1,10 +1,11 @@
 import { View, FlatList, StyleSheet } from "react-native";
-import { db } from "../config/firebase";
+import { auth, db } from "../config/firebase";
 import {
   collectionGroup,
   onSnapshot,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import TaskItem from "../components/TaskItem";
@@ -13,7 +14,12 @@ const RemindersScreen = () => {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    const q = query(collectionGroup(db, "tasks"), orderBy("deadline", "asc"));
+    const user = auth.currentUser;
+    const q = query(
+      collectionGroup(db, "tasks"),
+      where("uid", "==", user.uid),
+      orderBy("deadline", "asc")
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const updatedTasks = [];
@@ -26,7 +32,6 @@ const RemindersScreen = () => {
       setTasks(updatedTasks);
     });
 
-    // Clean up listener
     return () => unsubscribe();
   }, []);
 
@@ -51,11 +56,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   taskContainer: {
-    padding: 10,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    marginBottom: 10,
+    marginBottom: 15,
+    borderRadius: 15,
+    overflow: "hidden",
   },
 });
 

@@ -1,43 +1,43 @@
-import { StyleSheet, Text, View } from "react-native";
 import { Colors } from "../constants";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function ProjectItem({
-  customStyles,
   name,
-  duration,
+  endDate,
+  startDate,
   description,
+  customStyles,
 }) {
   return (
     <View style={[styles.container, customStyles]}>
-      <View>
-        <Text style={styles.title}>{name}</Text>
-      </View>
-      <View>
-        <Text style={styles.duration}>{duration}</Text>
-      </View>
-      <View>
-        <Text style={styles.description}>{description}</Text>
-      </View>
+      <Text style={styles.title}>{name}</Text>
+      <Text style={styles.duration}>{`${startDate} to ${endDate}`}</Text>
+      <Text style={styles.description}>{description}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15,
-    borderRadius: 10,
-    gap: 10,
+    gap: 15,
   },
   title: {
     fontSize: 30,
-    color: Colors.blackPrimary,
+    fontWeight: "bold",
+    color: Colors.textPrimary,
+  },
+  durationContainer: {
+    gap: 15,
+    flexDirection: "row",
   },
   duration: {
-    fontSize: 20,
-    color: Colors.blackSecondary,
+    fontSize: 17,
+    fontWeight: "600",
+    color: Colors.textSecondary,
   },
   description: {
-    fontSize: 15,
-    color: Colors.blackTertiary,
+    fontSize: 17,
+    fontWeight: "500",
+    color: Colors.textSecondary,
   },
 });

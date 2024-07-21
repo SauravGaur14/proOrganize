@@ -1,28 +1,23 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-
-import { getAuth, signOut } from "firebase/auth";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { getAuth, signOut } from "firebase/auth";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Colors } from "../constants";
+import { showToast } from "../util/showToast";
 
 export default function SettingsScreen() {
-  const navigate = useNavigation();
   function handleSignOut() {
-    alert("sign out");
     const auth = getAuth();
-    signOut(auth)
-      .then(() => {
-        navigate("Login");
-      })
-      .catch((error) => {
-        alert("Some error");
-      });
+    try {
+      signOut(auth);
+    } catch (error) {
+      showToast("error", "Please try again later");
+    }
   }
 
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleSignOut}>
-        <Ionicons name="exit" size={38} color="black" />
+        <Ionicons name="exit" size={38} color="#991b1b" />
         <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
     </View>
@@ -32,24 +27,22 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20,
     alignItems: "center",
-    padding: 10,
     justifyContent: "center",
   },
   button: {
-    borderWidth: 1,
-    backgroundColor: "#f6f6f6",
-    borderColor: "#f6f6",
-    borderRadius: 5,
-    padding: 10,
-    flexDirection: "row",
     gap: 40,
-    width: "99%",
+    borderRadius: 16,
     alignItems: "center",
-    elevation: 10,
+    paddingVertical: 10,
+    flexDirection: "row",
+    paddingHorizontal: 80,
+    backgroundColor: Colors.modalBackground,
   },
   buttonText: {
     fontSize: 24,
     textAlign: "center",
+    fontWeight: "bold",
   },
 });

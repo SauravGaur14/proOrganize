@@ -3,17 +3,21 @@ import {
   View,
   Text,
   Modal,
-  StyleSheet,
   Pressable,
-  TextInput,
-  TouchableOpacity,
 } from "react-native";
-import { Colors } from "../../constants";
-import { Ionicons } from "@expo/vector-icons";
-import { db } from "../../config/firebase";
+import {
+  ButtonContainer,
+  ModalContainer,
+  ModalOverlay,
+  ModalTitle,
+} from "../../constants";
+import { auth, db } from "../../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import * as Notifications from "expo-notifications";
 import DatePicker from "../DatePicker";
+import { showToast } from "../../util/showToast";
+import Input from "../TextInput";
+import Button from "../Button";
 
 export default function CreateTaskModal({ isVisible, onClose, projectId }) {
   const [task, setTask] = useState("");
@@ -37,6 +41,7 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
       return;
     }
     try {
+      const user = auth.currentUser;
       const taskRef = await addDoc(
         collection(db, "projects", projectId, "tasks"),
         {
@@ -44,6 +49,7 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
           task: task,
           createdAt: new Date().toDateString(),
           deadline: new Date(deadline).toDateString(),
+          uid: user.uid,
         }
       );
 
@@ -55,12 +61,11 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
         },
         trigger: reminderDate,
       });
-      resetForm();
-      alert("Task created successfully");
+      showToast("success", "Task added successfully");
     } catch (error) {
-      alert("Failed to create task");
-      console.log(error);
+      showToast("error", "Failed to create task");
     }
+    resetForm();
   };
 
   function resetForm() {
@@ -86,13 +91,12 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
 
   return (
     <Modal animationType="slide" transparent={true} visible={isVisible}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Create New Task</Text>
-          <TextInput
-            style={styles.input}
+      <View style={ModalOverlay}>
+        <View style={ModalContainer}>
+          <Text style={ModalTitle}>Create New Task</Text>
+          <Input
             ref={titleInputRef}
-            placeholder="Title"
+            label="Title"
             onChangeText={setTaskTitle}
             value={taskTitle}
             onFocus={() => {
@@ -102,10 +106,9 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
               }
             }}
           />
-          <TextInput
-            style={styles.input}
+          <Input
             ref={taskInputRef}
-            placeholder="Task"
+            label="Task"
             onChangeText={setTask}
             value={task}
             onFocus={() => {
@@ -117,7 +120,7 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
           />
 
           <Pressable
-            style={styles.buttonContainer}
+            style={ButtonContainer}
             onPress={() => {
               setShowReminderDatePicker(false);
               setShowDatePicker(true);
@@ -125,10 +128,13 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
               taskInputRef.current?.blur();
             }}
           >
-            <Ionicons name="calendar" size={25} color="black" />
-            <Text style={styles.input}>
-              {deadline ? deadline.toLocaleString() : "Deadline"}
-            </Text>
+            <View style={{ width: "100%" }} pointerEvents="none">
+              <Input
+                label="Deadline"
+                editable={false}
+                value={deadline ? deadline.toDateString() : ""}
+              />
+            </View>
           </Pressable>
 
           {showDatePicker && (
@@ -136,7 +142,7 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
           )}
 
           <Pressable
-            style={styles.buttonContainer}
+            style={ButtonContainer}
             onPress={() => {
               setShowDatePicker(false);
               setShowReminderDatePicker(true);
@@ -144,77 +150,25 @@ export default function CreateTaskModal({ isVisible, onClose, projectId }) {
               taskInputRef.current?.blur();
             }}
           >
-            <Ionicons name="calendar" size={25} color="black" />
-            <Text style={styles.input}>
-              {reminderDate ? reminderDate.toLocaleString() : "Remind At"}
-            </Text>
+            <View style={{ width: "100%" }} pointerEvents="none">
+              <Input
+                label="Remind At"
+                editable={false}
+                value={reminderDate ? reminderDate.toDateString() : ""}
+              />
+            </View>
           </Pressable>
 
           {showReminderDatePicker && (
             <DatePicker date={reminderDate} onChange={reminderChangeHandler} />
           )}
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={addTaskHandler} style={styles.button}>
-              <Text style={styles.buttonPrimary}>Create Task</Text>
-            </TouchableOpacity>
-            <View style={{ borderColor: "red", borderWidth: 1 }}>
-              <TouchableOpacity onPress={resetForm} style={styles.button}>
-                <Text style={styles.buttonSecondary}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={ButtonContainer}>
+            <Button label="Add" type="primary" onPress={addTaskHandler} />
+            <Button label="Cancel" type="secondary" onPress={resetForm} />
           </View>
         </View>
       </View>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContainer: {
-    width: "80%",
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 30,
-    alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  input: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    // width: "100%",
-    marginTop: 20,
-    gap: 5,
-  },
-  button: {
-    flex: 1,
-    alignItems: "center",
-    padding: 10,
-    borderRadius: 5,
-  },
-  buttonPrimary: {
-    color: "black",
-    backgroundColor: Colors.primary,
-  },
-  buttonSecondary: {
-    color: Colors.primary,
-  },
-});

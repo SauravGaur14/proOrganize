@@ -1,36 +1,50 @@
 import { StyleSheet, Text, View } from "react-native";
+import { Colors } from "../constants";
 
 export default function NoteItem({ note }) {
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
-        <Text>{note.title}</Text>
-        <Text>{note.createdAt}</Text>
-        <Text>{note.deadline}</Text>
+      <Text style={styles.title}>{note.title}</Text>
+      <View style={styles.itemContainer}>
+        <View style={styles.labelContainer}>
+          <Text style={styles.text}>Created At</Text>
+        </View>
+        <View style={styles.valueContainer}>
+          <Text style={styles.text}>{note.createdAt}</Text>
+        </View>
       </View>
-      <Text>{note.note}</Text>
+      <Text style={styles.text}>{note.note}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    borderColor: "#000",
-    borderRadius: 20,
-    overflow: "hidden",
-    borderWidth: 1,
-    backgroundColor: "pink",
-    marginBottom: 10,
-    padding: 15,
-    paddingLeft: 25,
     rowGap: 10,
+    padding: 20,
+    backgroundColor: Colors.cardBackground,
+  },
+  itemContainer: {
+    columnGap: 25,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  labelContainer: { gap: 10 },
+  valueContainer: { gap: 10 },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: Colors.textSecondary,
   },
   title: {
     fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: Colors.textPrimary,
   },
-  row: {
-    flexDirection: "row",
-    columnGap: 15,
+  text: {
+    fontSize: 16,
+    lineHeight: 25,
+    color: Colors.textTertiary,
   },
-  description: {},
 });

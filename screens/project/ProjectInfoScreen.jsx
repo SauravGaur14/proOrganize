@@ -1,12 +1,12 @@
+import { db } from "../../config/firebase";
+import { doc, getDoc } from "firebase/firestore";
+
 import React, { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../config/firebase";
+
 import TaskScreen from "./TaskScreen";
-import FilesScreen from "./FilesScreen";
 import NotesScreen from "./NotesScreen";
-import KanbanBoardScreen from "./KanbanBoardScreen";
 import ProjectItem from "../../components/ProjectItem";
 
 const Tab = createMaterialTopTabNavigator();
@@ -26,7 +26,6 @@ const ProjectInfoScreen = ({ route }) => {
         }
       } catch (error) {
         alert("Error fetching project");
-        console.error("Error fetching project:", error);
       } finally {
         setLoading(false);
       }
@@ -56,7 +55,8 @@ const ProjectInfoScreen = ({ route }) => {
       <View style={{ padding: 20 }}>
         <ProjectItem
           name={project.name}
-          duration={project.startDate + " - " + project.endDate}
+          startDate={project.startDate}
+          endDate={project.endDate}
           description={project.description}
         />
       </View>
@@ -64,17 +64,23 @@ const ProjectInfoScreen = ({ route }) => {
         <Tab.Screen name="Tasks">
           {() => <TaskScreen projectId={projectId} />}
         </Tab.Screen>
-        <Tab.Screen name="Files" component={FilesScreen} />
         <Tab.Screen name="Notes">
           {() => <NotesScreen projectId={projectId} />}
         </Tab.Screen>
-        <Tab.Screen name="Kanban" component={KanbanBoardScreen} />
       </Tab.Navigator>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  projectInfoContainer: {
+    gap: 15,
+    padding: 25,
+    minHeight: 220,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -84,6 +90,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    color: "#fff",
   },
   errorText: {
     fontSize: 18,

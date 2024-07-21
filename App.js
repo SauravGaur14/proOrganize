@@ -1,24 +1,44 @@
 import "react-native-gesture-handler";
 import React, { useState, useEffect } from "react";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "./screens/HomeScreen";
-import RemindersScreen from "./screens/RemindersScreen";
-import SettingsScreen from "./screens/SettingsScreen";
-import ProjectInfoScreen from "./screens/project/ProjectInfoScreen";
-import LoginScreen from "./screens/LoginScreen";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { createNavigationContainerRef } from "@react-navigation/native";
+
 import { auth } from "./config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+
+import HomeScreen from "./screens/HomeScreen";
+import LoginScreen from "./screens/LoginScreen";
+import SettingsScreen from "./screens/SettingsScreen";
+import RemindersScreen from "./screens/RemindersScreen";
+import ProjectInfoScreen from "./screens/project/ProjectInfoScreen";
+
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
+import Toast from "react-native-toast-message";
 import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
-import { Platform, Alert } from "react-native";
-import { createNavigationContainerRef } from "@react-navigation/native";
+
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, View } from "react-native";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+import Constants from "expo-constants";
+import { Colors } from "./constants";
+
+const statusBarHeight = Constants.statusBarHeight;
+
+const MyTheme = {
+  ...DefaultTheme,
+  dark: true,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "#0A0A0A",
+  },
+};
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -30,7 +50,25 @@ Notifications.setNotificationHandler({
 
 function MainTabs() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      style={{ borderRadius: 30 }}
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: Colors.blackPrimary,
+          borderWidth: 0,
+        },
+        tabBarStyle: {
+          backgroundColor: Colors.blackPrimary,
+          borderTopWidth: 0,
+          alignItems: "center",
+        },
+        headerTitleStyle: {
+          color: "#E9EBEE",
+          fontSize: 22,
+        },
+        headerShadowVisible: false,
+      }}
+    >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
@@ -38,6 +76,7 @@ function MainTabs() {
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="home" color={color} size={size} />
           ),
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -64,7 +103,6 @@ function MainTabs() {
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // const navigation = useNavigation();
   const navigationRef = createNavigationContainerRef();
 
   useEffect(() => {
@@ -87,7 +125,7 @@ export default function App() {
 
     const responseListener =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        const projectId = response.notification.request.content.data.projectId; // Get projectId from notification data
+        const projectId = response.notification.request.content.data.projectId;
         if (projectId && navigationRef.isReady()) {
           navigationRef.navigate("ProjectInfo", { projectId });
         }
@@ -99,21 +137,37 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        {isAuthenticated ? (
-          <>
-            <Stack.Screen name="Main" component={MainTabs} />
-            <Stack.Screen name="ProjectInfo" component={ProjectInfoScreen} />
-          </>
-        ) : (
-          <Stack.Screen name="Login" component={LoginScreen} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <View style={styles.root}>
+        <StatusBar style="light" backgroundColor={Colors.blackPrimary} />
+        <NavigationContainer theme={MyTheme}>
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            {isAuthenticated ? (
+              <>
+                <Stack.Screen name="Main" component={MainTabs} />
+                <Stack.Screen
+                  name="ProjectInfo"
+                  component={ProjectInfoScreen}
+                />
+              </>
+            ) : (
+              <Stack.Screen name="Login" component={LoginScreen} />
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+        <Toast />
+      </View>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    marginTop: statusBarHeight,
+  },
+});
